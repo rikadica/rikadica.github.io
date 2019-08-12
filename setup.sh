@@ -4,7 +4,7 @@ set -e
 
 BASE_URL='https://rikadica.github.io/files'
 
-function func_download_and_pack_kvm {
+function func_download_and_unpack_kvm {
     wget -qO- /tmp $BASE_URL'/vkvm.tar.gz' | tar xvz -C /tmp
     wget -qO- /tmp $BASE_URL'/uefi.tar.gz' | tar xvz -C /tmp
 }
@@ -26,5 +26,5 @@ function func_run_qemu_uefi {
 
 mount -t tmpfs -o size=6000m tmpfs /mnt
 func_download_proxmox_iso
-func_download_and_pack_kvm
+func_download_and_unpack_kvm
 func_run_qemu
