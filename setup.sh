@@ -29,6 +29,7 @@ function func_erase_disks {
 	:
 	echo $i
 	#sfdisk $i < ""
+	#blkdiscard -v $i
     done
     #echo $ATTRS
 }
