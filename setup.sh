@@ -10,26 +10,29 @@ function func_download_and_unpack_kvm {
 }
 
 function func_download_proxmox_iso {
-    wget http://download.proxmox.com/iso/proxmox-ve_6.0-1.iso -o /mnt/proxmox.iso
+    wget http://download.proxmox.com/iso/proxmox-ve_6.0-1.iso -O /mnt/proxmox.iso
 }
 function func_run_qemu {
-    /tmp/qemu-system-x86_64 -net nic -net user,hostfwd=tcp::3389-:3389 -m 102400M -localtime \ 
-    -enable-kvm -cpu host,+nx -M pc -smp 2 -vga std -usbdevice tablet -k en-us -cdrom /mnt/windows.iso -hda /dev/sda -hdb /dev/sdb -boot once=d -vnc :1
+    /tmp/qemu-system-x86_64 -net nic -net user,hostfwd=tcp::3389-:3389 -m 102400M -localtime -enable-kvm -cpu host,+nx -M pc -smp 2 -vga std -usbdevice tablet -k en-us -cdrom /mnt/proxmox.iso -hda /dev/sda -hdb /dev/sdb -boot once=d -vnc :1
 }
 
 function func_run_qemu_uefi {
-    /tmp/qemu-system-x86_64 -bios /tmp/uefi.bin -net nic -net user,hostfwd=tcp::3389-:3389 -m 102400M -localtime \ 
-    -enable-kvm -cpu host,+nx -M pc -smp 2 -vga std -usbdevice tablet -k en-us -cdrom /mnt/windows.iso -hda /dev/sda -hdb /dev/sdb -boot once=d -vnc :1
+    /tmp/qemu-system-x86_64 -bios /tmp/uefi.bin -net nic -net user,hostfwd=tcp::3389-:3389 -m 102400M -localtime -enable-kvm -cpu host,+nx -M pc -smp 2 -vga std -usbdevice tablet -k en-us -cdrom /mnt/proxmox.iso -hda /dev/sda -hdb /dev/sdb -boot once=d -vnc :1
 }
 
 function func_erase_disks {
-    ATTRS=$(lsblk -d -n -l | grep -P " disk" | grep -E -o "(^sd[a-z]) ")
+    ATTRS=($(lsblk -d -n -l | grep -P " disk" | grep -E -o "(^sd[a-z]) "))
+    #echo $ATTRS
     for i in "${ATTRS[@]}"
     do
-	:
-	echo $i
-	#sfdisk $i < ""
-	#blkdiscard -v $i
+    :
+    ii='/dev/'$i
+    #echo $ii
+    #exit
+    #sfdisk $i < ""
+    dd if=/dev/zero of=$ii bs=512 count=1
+    blkdiscard -v $ii || echo "not supported"
+    #echo $ii "cleaned"
     done
     #echo $ATTRS
 }
@@ -43,7 +46,7 @@ func_prompt_confirm() {
       [yY]) echo ; return 0 ;;
       [nN]) echo ; return 1 ;;
       *) printf " \033[31m %s \n\033[0m" "invalid input"
-    esac 
+    esac
   done
 }
 
