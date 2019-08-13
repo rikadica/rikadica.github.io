@@ -30,7 +30,7 @@ function func_erase_disks {
     #echo $ii
     #exit
     #sfdisk $i < ""
-    dd if=/dev/zero of=$ii bs=512 count=1
+    #dd if=/dev/zero of=$ii bs=512 count=1
     blkdiscard -v $ii || echo "not supported"
     #echo $ii "cleaned"
     done
